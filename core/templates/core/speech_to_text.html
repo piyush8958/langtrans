@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Speech to Text</title>
+  <style>
+    button {
+      font-size: 18px;
+      margin: 10px;
+      padding: 10px 20px;
+    }
+    #status {
+      color: green;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>Speech to Text</h1>
+
+  <button id="startBtn">🎙 Speak</button>
+  <button id="stopBtn" disabled>🛑 Stop</button>
+  <p id="status">Not recording</p>
+
+  <h3>Detected Text:</h3>
+  <div id="detectedText"></div>
+
+  <h3>Translated:</h3>
+  <div id="translatedText"></div>
+
+  <script>
+    let mediaRecorder;
+    let audioChunks = [];
+
+    const startBtn = document.getElementById("startBtn");
+    const stopBtn = document.getElementById("stopBtn");
+    const statusText = document.getElementById("status");
+
+    startBtn.addEventListener("click", async () => {
+      audioChunks = [];
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+
+      mediaRecorder = new MediaRecorder(stream);
+      mediaRecorder.start();
+      statusText.textContent = "Recording...";
+
+      startBtn.disabled = true;
+      stopBtn.disabled = false;
+
+      mediaRecorder.ondataavailable = (e) => {
+        audioChunks.push(e.data);
+      };
+
+      mediaRecorder.onstop = () => {
+        const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+        const formData = new FormData();
+        formData.append('audio', audioBlob, 'recording.wav');
+
+        statusText.textContent = "Processing...";
+
+        fetch('/speech-to-text/', {
+          method: 'POST',
+          body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+          statusText.textContent = "Done";
+          document.getElementById("detectedText").textContent = data.text || data.error || "No text detected.";
+          document.getElementById("translatedText").textContent = data.translated || '';
+        })
+        .catch(error => {
+          console.error("Error:", error);
+          statusText.textContent = "Error occurred.";
+        });
+      };
+    });
+
+    stopBtn.addEventListener("click", () => {
+      if (mediaRecorder && mediaRecorder.state !== "inactive") {
+        mediaRecorder.stop();
+        statusText.textContent = "Stopped";
+      }
+
+      startBtn.disabled = false;
+      stopBtn.disabled = true;
+    });
+  </script>
+</body>
+</html>

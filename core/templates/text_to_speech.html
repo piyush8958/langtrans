@@ -1,0 +1,44 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Text to Speech with Translation</title>
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+</head>
+<body>
+    <div class="container">
+        <h1>Text to Speech with Translation</h1>
+
+        <form method="POST">
+            {% csrf_token %}
+            <textarea name="text" rows="4" placeholder="Enter text">{{ text }}</textarea><br>
+            <button type="submit" name="action" value="generate">Convert and Play</button>
+        </form>
+
+        {% if original_audio_url %}
+            <h3>Original Audio ({{ lang|upper }}):</h3>
+            <audio controls autoplay>
+                <source src="{{ original_audio_url }}" type="audio/mp3">
+            </audio>
+
+            <form method="POST" style="margin-top:10px;">
+                {% csrf_token %}
+                <input type="hidden" name="text" value="{{ text }}">
+                <input type="hidden" name="original_audio_url" value="{{ original_audio_url }}">
+                <button type="submit" name="action" value="translate">
+                    Translate and Convert to {% if lang == "en" %}Hindi{% else %}English{% endif %}
+                </button>
+            </form>
+        {% endif %}
+
+        {% if translated_audio_url %}
+            <h3>Translated Text:</h3>
+            <div class="output-box">{{ translated_text }}</div>
+            <h3>Translated Audio:</h3>
+            <audio controls autoplay>
+                <source src="{{ translated_audio_url }}" type="audio/mp3">
+            </audio>
+        {% endif %}
+    </div>
+</body>
+</html>

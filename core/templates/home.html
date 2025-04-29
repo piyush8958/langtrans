@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+{% load static %}
+<head>
+    <title>Language Tools</title>
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+</head>
+<body>
+    <h1>Welcome to Language Tools</h1>
+    <div class="options">
+        <a href="{% url 'translate' %}">1. Translate Text</a><br>
+        <a href="{% url 'text_to_speech' %}">2. Text to Speech</a><br>
+        {% comment %} <a href="{% url 'speech_to_text' %}">3. Speech to Text</a> {% endcomment %}
+    </div>
+</body>
+</html>

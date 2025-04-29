@@ -1,0 +1,33 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Translate Text</title>
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+</head>
+<body>
+    <h1>Translate Text</h1>
+    <form method="post">
+        {% csrf_token %}
+        <label for="text">Enter Text:</label><br>
+        <textarea name="text" rows="4" cols="50" required></textarea><br><br>
+
+        <label for="lang">Translate:</label><br>
+        <select name="lang" required>
+            <option value="en">English to Hindi</option>
+            <option value="hi">Hindi to English</option>
+        </select><br><br>
+
+        <button type="submit">Translate</button>
+    </form>
+
+    {% if translated_text %}
+        <h2>Translated Text:</h2>
+        <p>{{ translated_text }}</p>
+    {% endif %}
+
+    <br>
+    <a href="{% url 'home' %}">Back to Home</a>
+</body>
+</html>
